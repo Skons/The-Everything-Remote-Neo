@@ -53,7 +53,7 @@ Skip the original PCB and add the following items:
 - [0.5 mm copper wire](https://nl.aliexpress.com/item/1005009078359338.html)
 - [RGB LED](https://nl.aliexpress.com/item/4000225253691.html)
 - Three 200 Ω resistors
-- 24–28 AWG wire, approximately four pieces shorter than 10 cm each
+- 24–28 AWG wire, four wires shorter than 10 cm each
 
 ## Printing
 
@@ -85,17 +85,15 @@ Before starting, watch The Stock Pot’s YouTube build guide for the original re
 12. Test the remote using the ESPHome configuration.
 13. Install the assembled PCB into the casing.
 
-Refer to the SVG file for the complete row, column, LED and ESP32 GPIO assignments.
+Refer to the [PCBEtcher SVG](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.svg) file for the complete row, column, LED and ESP32 GPIO assignments. Keep in mind that you look at it from the bottom perspective.
 
 ## Adding the copper traces
 
-After printing, start by adding the copper wire to the traces. First, [install two or three push buttons](#installing-and-soldering-the-push-buttons) without soldering into the PCB so that the two plates stay aligned while you work on them.
-
-Start at the point where the wires will later be connected to the ESP32 on the top PCB. Unwind the copper wire from that point and follow the trace to the first hole. Push the wire through the hole, then press it into the trace from the beginning of the route. This method provides enough wire to fill the complete trace while minimizing excess wire that needs to be cut off.
+After printing, start by adding the copper wire to the traces. First, [install two or three push buttons](#installing-and-soldering-the-push-buttons) without soldering into the PCB so that the two plates stay aligned while you work on them. Start at the point where the wires will later be connected to the ESP32 on the top PCB. Unwind the copper wire from that point and follow the trace to the first hole. Push the wire through the hole, then press it into the trace from the beginning of the route. This method provides enough wire to fill the complete trace while minimizing excess wire that needs to be cut off.
 
 Some traces consist of several connected sections. After completing the main trace, locate the additional sections and add wire to them. Solder these sections to the main trace where necessary.
 
-Some ESP32 GPIO pins have two copper wires connected to them. Check the PCBEtcher SVG carefully before soldering.
+Some ESP32 GPIO pins have two copper wires connected to them. Check the [PCBEtcher SVG](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.svg) carefully before soldering.
 
 ### Working with the printed PCB
 
@@ -122,13 +120,13 @@ Test all traces with a multimeter before installing the ESP32. If a connection i
 3. Confirm that the connection is continuous.
 4. Repeat this for every leg on every button.
 
-It can be useful to draw a table showing the rows and columns and mark each connection as it is tested. Use the SVG file to determine which row and column belong to each button.
+It can be useful to draw a table showing the rows and columns and mark each connection as it is tested. Use the [PCBEtcher SVG](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.svg) file to determine which row and column belong to each button.
 
 ## Installing the RGB LED and resistors
 
 Insert the RGB LED through the PCB. Before soldering, identify the ground connection and the red, green and blue LED leads. The exact pin order depends on the LED type. Cut off the excess LED leads on the underside of the PCB. Insert the three 200 Ω resistors into their designated holes. Solder the resistor legs to the corresponding LED leads on the top side of the PCB, not the underside.
 
-Refer to the PCBEtcher SVG for the LED wiring and GPIO assignment.
+Refer to the [PCBEtcher SVG](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.svg) for the LED wiring and GPIO assignment.
 
 ## Installing the ESP32
 
@@ -205,8 +203,8 @@ The example automation is designed to make switching between contexts easy. Pay 
 The colours in the automation variables must match the options in `everything_remote_neo_context`. If you want to use different colours, update both the variables and the `input_select` options.
 
 ## Images
-
-[<img src="images/The Everything Remote - Neo PCB Top.jpeg" alt="The Everything Remote Neo PCB top" width="500">](images/The%20Everything%20Remote%20-%20Neo%20PCB%20Top.jpeg)
+[<img src="images/The Everything Remote - Neo.jpeg" alt="The Everything Remote Neo PCB top" width="500">](images/The%20Everything%20Remote%20-%20Neo.jpeg)
+[<img src="images/The Everything Remote - Neo PCB Top.jpeg" alt="The Everything Remote Neo" width="500">](images/The%20Everything%20Remote%20-%20Neo%20PCB%20Top.jpeg)
 [<img src="images/The Everything Remote - Neo PCB Top Full.jpeg" alt="The Everything Remote Neo PCB top, full view" width="500">](images/The%20Everything%20Remote%20-%20Neo%20PCB%20Top%20Full.jpeg)
 [<img src="images/The Everything Remote - Neo PCB Bottom.jpeg" alt="The Everything Remote Neo PCB bottom" width="500">](images/The%20Everything%20Remote%20-%20Neo%20PCB%20Bottom.jpeg)
 
