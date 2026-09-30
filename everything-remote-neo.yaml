@@ -1,0 +1,666 @@
+# Board: WEMOS LOLIN32 (WEMOS)
+# Definition: definitions/boards/lolin32/manifest.yaml
+
+esphome:
+  name: everything-remote-neo
+  friendly_name: Everything Remote Neo
+  on_shutdown:
+    - priority: 100.0
+      then:
+        - script.execute: led_off
+  on_boot:
+    - priority: 250
+      then:
+        - script.execute: until_connected
+        - lambda: |-
+            // release the row pins that were held LOW to allow wake during deep sleep
+            gpio_hold_dis(GPIO_NUM_25);
+            gpio_hold_dis(GPIO_NUM_26);
+            gpio_hold_dis(GPIO_NUM_27);
+            gpio_deep_sleep_hold_dis();
+
+esp32:
+  variant: esp32
+  flash_size: 4MB
+  framework:
+    type: esp-idf
+
+logger:
+  baud_rate: 0 # Disable logging over UART for faster wake from deep sleep
+
+api:
+  encryption:
+    key: ""
+  reboot_timeout: 0s
+  on_client_disconnected:
+    then:
+      - script.execute: until_connected
+
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: Everything Remo Fallback Hotspot
+    password: ""
+  fast_connect: true # Fast wake from deep sleep
+  power_save_mode: NONE # Fast wake from deep sleep
+  manual_ip: # Static IP is preferred for faster wake from deep sleep
+    static_ip: 
+    gateway: 
+    subnet: 
+    dns1: 
+
+globals:
+  - id: last_active
+    type: int
+    restore_value: no
+    initial_value: '0'
+
+deep_sleep:
+  id: deep_sleep_ctrl
+  sleep_duration: 2800 min
+  wakeup_pin:
+    # Only pins 0, 2, 4, 12, 13, 14, 15, 25, 26, 27, 32, 33, 34, 35, 36, 37, 38, 39 support wakeup.
+    - pin:
+        number: GPIO04
+        inverted: true
+        allow_other_uses: true
+
+button:
+  - platform: template
+    name: "Enter Deep Sleep"
+    icon: "mdi:power-sleep"
+    on_press:
+      - logger.log: "Manual deep sleep triggered by button"
+      - deep_sleep.enter: deep_sleep_ctrl
+
+switch:
+  - id: restart_switch
+    platform: restart
+    name: "Restart"
+
+number:
+  - platform: template
+    name: "Deep Sleep Timeout"
+    id: deep_sleep_timeout_minutes
+    entity_category: config
+    optimistic: true
+    restore_value: true
+    initial_value: 20
+    min_value: 1
+    max_value: 120
+    step: 1
+    unit_of_measurement: min
+  - platform: template
+    name: "LED Minimum Brightness Level"
+    id: led_minimum_brightness_level
+    icon: "mdi:brightness-6"
+    unit_of_measurement: "%"
+    min_value: 0
+    max_value: 100
+    step: 1
+    initial_value: 50
+    restore_value: true
+    optimistic: true
+  - platform: template
+    name: "LED Maximum Brightness Level"
+    id: led_maximum_brightness_level
+    icon: "mdi:brightness-6"
+    unit_of_measurement: "%"
+    min_value: 0
+    max_value: 100
+    step: 1
+    initial_value: 100
+    restore_value: true
+    optimistic: true
+
+interval:
+  - interval: 60s
+    then:
+      - if:
+          condition:
+            lambda: return (millis() / 1000) - id(last_active) >= (id(deep_sleep_timeout_minutes).state * 60);
+          then:
+            - lambda: |-
+                // drive all matrix rows LOW and hold that state through deep sleep so a keypress can pull a column low
+                gpio_set_direction(GPIO_NUM_25, GPIO_MODE_OUTPUT);
+                gpio_set_direction(GPIO_NUM_26, GPIO_MODE_OUTPUT);
+                gpio_set_direction(GPIO_NUM_27, GPIO_MODE_OUTPUT);
+                gpio_set_level(GPIO_NUM_25, 0);
+                gpio_set_level(GPIO_NUM_26, 0);
+                gpio_set_level(GPIO_NUM_27, 0);
+                gpio_hold_en(GPIO_NUM_25);
+                gpio_hold_en(GPIO_NUM_26);
+                gpio_hold_en(GPIO_NUM_27);
+                gpio_deep_sleep_hold_en();
+            - deep_sleep.enter: deep_sleep_ctrl
+
+output:
+  - platform: ledc
+    pin: GPIO16
+    id: red_output
+  - platform: ledc
+    pin: GPIO17
+    id: green_output
+  - platform: ledc
+    pin: GPIO18
+    id: blue_output
+
+light:
+  - platform: rgb
+    default_transition_length: 25ms
+    name: "RGB LED"
+    id: rgb_led
+    red: red_output
+    green: green_output
+    blue: blue_output
+    restore_mode: RESTORE_DEFAULT_OFF
+
+script:
+  - id: led_on
+    mode: single
+    then:
+      - light.turn_on:
+          id: rgb_led
+          brightness: !lambda 'return id(led_maximum_brightness_level).state / 100.0;'
+          transition_length: 0s
+  - id: led_off
+    mode: single
+    then:
+      - delay: 50ms
+      - if:
+          condition:
+            lambda: 'return id(led_minimum_brightness_level).state <= 0.0;'
+          then:
+            - light.turn_off:
+                id: rgb_led
+          else:
+            - light.turn_on:
+                id: rgb_led
+                brightness: !lambda 'return id(led_minimum_brightness_level).state / 100.0;'
+  - id: reset_idle_timer
+    then:
+      - script.execute: led_on
+      - lambda: |-
+          id(last_active) = millis() / 1000;
+  - id: until_connected
+    mode: single
+    then:
+      - while:
+          condition:
+            not:
+              api.connected:
+          then:
+            - script.execute: led_on
+            - delay: 500ms
+            - script.execute: led_off
+            - delay: 500ms
+      - script.execute: led_off
+
+matrix_keypad:
+  id: mykeypad
+  rows:
+    - pin: GPIO25 # Row 1
+    - pin: GPIO26 # Row 2
+    - pin: GPIO27 # Row 3
+  columns:
+  - pin: 
+      number: GPIO04 # Column 1
+      allow_other_uses: true
+  - pin: GPIO33 # Column 2
+  - pin: GPIO23 # Column 3
+  - pin: GPIO32 # Column 4
+  - pin: GPIO19 # Column 5
+  - pin: GPIO13 # Column 6
+  - pin: GPIO14 # Column 7
+  keys: "ABCDEFGHIJKLMNOPQRSTU"
+  has_diodes: false
+  on_key:
+    - script.execute: reset_idle_timer
+    - lambda: ESP_LOGI("KEY", "key %d pressed", x);
+
+binary_sensor:
+  - platform: matrix_keypad
+    keypad_id: mykeypad
+    id: key_a_btn
+    name: "Power"
+    key: A
+    on_multi_click:
+      - timing:
+          - ON for at most 350ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "power", type: "single"}
+      - timing:
+          - ON for at least 500ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "power", type: "long"}
+    on_release:
+      then:
+        - script.execute: led_off
+  - platform: matrix_keypad
+    keypad_id: mykeypad
+    id: key_b_btn
+    name: "Play Pause"
+    key: B
+    on_multi_click:
+      - timing:
+          - ON for at most 350ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "play_pause", type: "single"}
+      - timing:
+          - ON for at least 500ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "play_pause", type: "long"}
+    on_release:
+      then:
+        - script.execute: led_off
+  - platform: matrix_keypad
+    keypad_id: mykeypad
+    id: key_c_btn
+    name: "DPAD Right"
+    key: C
+    on_multi_click:
+      - timing:
+          - ON for at most 350ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "dpad_right", type: "single"}
+      - timing:
+          - ON for at least 500ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "dpad_right", type: "long"}
+    on_release:
+      then:
+        - script.execute: led_off
+  - platform: matrix_keypad
+    keypad_id: mykeypad
+    id: key_d_btn
+    name: "Home"
+    key: D
+    on_multi_click:
+      - timing:
+          - ON for at most 350ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "home", type: "single"}
+      - timing:
+          - ON for at least 500ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "home", type: "long"}
+    on_release:
+      then:
+        - script.execute: led_off
+  - platform: matrix_keypad
+    keypad_id: mykeypad
+    id: key_e_btn
+    name: "DPAD Up"
+    key: E
+    on_multi_click:
+      - timing:
+          - ON for at most 350ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "dpad_up", type: "single"}
+      - timing:
+          - ON for at least 500ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "dpad_up", type: "long"}
+    on_release:
+      then:
+        - script.execute: led_off
+  - platform: matrix_keypad
+    keypad_id: mykeypad
+    id: key_f_btn
+    name: "DPAD Center"
+    key: F
+    on_multi_click:
+      - timing:
+          - ON for at most 350ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "dpad_center", type: "single"}
+      - timing:
+          - ON for at least 500ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "dpad_center", type: "long"}
+    on_release:
+      then:
+        - script.execute: led_off
+  - platform: matrix_keypad
+    keypad_id: mykeypad
+    id: key_g_btn
+    name: "Back"
+    key: G
+    on_multi_click:
+      - timing:
+          - ON for at most 350ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "back", type: "single"}
+      - timing:
+          - ON for at least 500ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "back", type: "long"}
+    on_release:
+      then:
+        - script.execute: led_off
+  - platform: matrix_keypad
+    keypad_id: mykeypad
+    id: key_h_btn
+    name: "Up"
+    key: H
+    on_multi_click:
+      - timing:
+          - ON for at most 350ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "up", type: "single"}
+      - timing:
+          - ON for at least 500ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "up", type: "long"}
+    on_release:
+      then:
+        - script.execute: led_off
+  - platform: matrix_keypad
+    keypad_id: mykeypad
+    id: key_i_btn
+    name: "Down"
+    key: I
+    on_multi_click:
+      - timing:
+          - ON for at most 350ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "down", type: "single"}
+      - timing:
+          - ON for at least 500ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "down", type: "long"}
+    on_release:
+      then:
+        - script.execute: led_off
+  - platform: matrix_keypad
+    keypad_id: mykeypad
+    id: key_j_btn
+    name: "DPAD Down"
+    key: J
+    on_multi_click:
+      - timing:
+          - ON for at most 350ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "dpad_down", type: "single"}
+      - timing:
+          - ON for at least 500ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "dpad_down", type: "long"}
+    on_release:
+      then:
+        - script.execute: led_off
+  - platform: matrix_keypad
+    keypad_id: mykeypad
+    id: key_k_btn
+    name: "Volume Mute"
+    key: K
+    on_multi_click:
+      - timing:
+          - ON for at most 350ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "volume_mute", type: "single"}
+      - timing:
+          - ON for at least 500ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "volume_mute", type: "long"}
+    on_release:
+      then:
+        - script.execute: led_off
+  - platform: matrix_keypad
+    keypad_id: mykeypad
+    id: key_l_btn
+    name: "Settings"
+    key: L
+    on_multi_click:
+      - timing:
+          - ON for at most 350ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "settings", type: "single"}
+      - timing:
+          - ON for at least 500ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "settings", type: "long"}
+    on_release:
+      then:
+        - script.execute: led_off
+  - platform: matrix_keypad
+    keypad_id: mykeypad
+    id: key_m_btn
+    name: "DPAD Left"
+    key: M
+    on_multi_click:
+      - timing:
+          - ON for at most 350ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "dpad_left", type: "single"}
+      - timing:
+          - ON for at least 500ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "dpad_left", type: "long"}
+    on_release:
+      then:
+        - script.execute: led_off
+  - platform: matrix_keypad
+    keypad_id: mykeypad
+    id: key_n_btn
+    name: "Volume Up"
+    key: N
+    on_multi_click:
+      - timing:
+          - ON for at most 350ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "volume_up", type: "single"}
+      - timing:
+          - ON for at least 500ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "volume_up", type: "long"}
+    on_release:
+      then:
+        - script.execute: led_off
+  - platform: matrix_keypad
+    keypad_id: mykeypad
+    id: key_o_btn
+    name: "Record"
+    key: O
+    on_multi_click:
+      - timing:
+          - ON for at most 350ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "information", type: "single"}
+      - timing:
+          - ON for at least 500ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "information", type: "long"}
+    on_release:
+      then:
+        - script.execute: led_off
+  - platform: matrix_keypad
+    keypad_id: mykeypad
+    id: key_p_btn
+    name: "Stop"
+    key: P
+    on_multi_click:
+      - timing:
+          - ON for at most 350ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "p", type: "single"}
+      - timing:
+          - ON for at least 500ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "stop", type: "long"}
+    on_release:
+      then:
+        - script.execute: led_off
+  - platform: matrix_keypad
+    keypad_id: mykeypad
+    id: key_q_btn
+    name: "Information"
+    key: Q
+    on_multi_click:
+      - timing:
+          - ON for at most 350ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "record", type: "single"}
+      - timing:
+          - ON for at least 500ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "record", type: "long"}
+    on_release:
+      then:
+        - script.execute: led_off
+  - platform: matrix_keypad
+    keypad_id: mykeypad
+    id: key_r
+    name: "Rewind"
+    key: R
+    on_multi_click:
+      - timing:
+          - ON for at most 350ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "rewind", type: "single"}
+      - timing:
+          - ON for at least 500ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "rewind", type: "long"}
+    on_release:
+      then:
+        - script.execute: led_off
+  - platform: matrix_keypad
+    keypad_id: mykeypad
+    id: key_s
+    name: "Fast Forward"
+    key: S
+    on_multi_click:
+      - timing:
+          - ON for at most 350ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "fast_forward", type: "single"}
+      - timing:
+          - ON for at least 500ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "fast_forward", type: "long"}
+    on_release:
+      then:
+        - script.execute: led_off
+  - platform: matrix_keypad
+    keypad_id: mykeypad
+    id: key_t_btn
+    name: "Source"
+    key: T
+    on_multi_click:
+      - timing:
+          - ON for at most 350ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "source", type: "single"}
+      - timing:
+          - ON for at least 500ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "source", type: "long"}
+    on_release:
+      then:
+        - script.execute: led_off
+  - platform: matrix_keypad
+    keypad_id: mykeypad
+    id: key_u
+    name: "Volume Down"
+    key: U
+    on_multi_click:
+      - timing:
+          - ON for at most 350ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "volume_down", type: "single"}
+      - timing:
+          - ON for at least 500ms
+        then:
+          - homeassistant.event:
+              event: esphome.remote_button_pressed
+              data: {button: "volume_down", type: "long"}
+    on_release:
+      then:
+        - script.execute: led_off
