@@ -59,7 +59,7 @@ Skip the original PCB and add the following items:
 
 **An AMS or equivalent multi-material setup is required.**
 
-Print all plates included in the project. Pay special attention to the printed PCBs. If you have watched The Stock Pot video, then you'll see that his buttons are done different. For know I went the easy way for the icons.
+Print all plates included in the project. Pay special attention to the printed PCBs. If you have watched The Stock Pot video, then you'll see that his buttons are done different. For now I went the easy way for the icons. Edit the icons if you want to reassign the buttons. I have used the Windows font Segoe Fluent Icons.
 
 For the holes to print correctly, you may need to set Bambu Studio’s [X-Y Hole Compensation](https://wiki.bambulab.com/en/software/bambu-studio/xy-hole-contour-compensation) to `0.15`. Do this for the Bottom and Top PCB.
 
