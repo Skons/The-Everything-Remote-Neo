@@ -214,13 +214,30 @@ The colours in the automation variables must match the options in `everything_re
 
 [<img src="images/The Everything Remote - Neo.svg" alt="The Everything Remote Neo button layout">](images/The%20Everything%20Remote%20-%20Neo.svg)
 
+## PCBEtcher
+
+[PCBEtcher](https://skons.github.io/PCBEtcher/) is tool that allows to create a PCB with a 3D printer. Load the [PCBEtcher](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.svg) into that tool after edits have been made. Load the [PCBEtcher config](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.json) file through open settings. After this you can just click `Download PCB STL`. Keep in mind that you should select `mirror` when the `Top` PCB is downloaded.
+
+## PCBEtcher
+
+If you make changes to the PCB design, load the updated [PCBEtcher SVG file](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.svg) into PCBEtcher. Next, open the settings menu and load the [PCBEtcher configuration file](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.json).
+
+After loading the settings, you do not need to load the settings again:
+
+1. Make any required changes to the PCB design.
+2. Open your PCBEtcher file of The Everything Remote - Neo.
+3. Click **Download PCB STL**.
+4. Select the `mirror` option when downloading the `Top` PCB.
+
+The top PCB must be mirrored so that the printed traces and components are oriented correctly during assembly.
+
 ## Experimental features
 
 ### Wake-up using all buttons
 
 The `PCBEtcher` file contains additional layers for experimental wake-up traces:
 
-[Open the PCBEtcher file](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.svg)
+[Open the PCBEtcher file](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.svg) in your favorite SVG editor. This PCBEtcher file has been created with Inkscape.
 
 These traces have not been printed or tested yet. The idea is to connect the column lines to a dedicated wake-up GPIO through diodes. To use GPIO36 as the wake-up input, add one diode to each wake-up trace. The diodes must be oriented with the cathode—the side marked with a stripe—towards GPIO36.
 
