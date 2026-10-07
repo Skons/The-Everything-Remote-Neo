@@ -1,0 +1,260 @@
+alias: Everything Remote Neo
+description: ''
+triggers:
+  - event_type: esphome.remote_button_pressed
+    event_data:
+      type: single
+    id: single
+    trigger: event
+  - event_type: esphome.remote_button_pressed
+    event_data:
+      type: long
+    id: long
+    trigger: event
+  - trigger: state
+    entity_id: input_select.everything_remote_neo_context
+    id: setcontext
+actions:
+  - variables:
+      colors:
+        Red:
+          - 255
+          - 0
+          - 0
+        Green:
+          - 0
+          - 255
+          - 0
+        Blue:
+          - 0
+          - 0
+          - 255
+        White:
+          - 255
+          - 255
+          - 255
+        Orange:
+          - 255
+          - 128
+          - 0
+      light:
+        Green: light.first
+        White: light.second
+        Orange: light.third
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: setcontext
+        sequence:
+          - target:
+              entity_id: light.everything_remote_neo_rgb_led
+            data:
+              rgb_color: '{{ colors[trigger.to_state.state] }}'
+            action: light.turn_on
+            alias: Show new context
+      - conditions:
+          - condition: trigger
+            id: single
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_select.everything_remote_neo_context
+                    state: Red
+                sequence:
+                  - choose:
+                      - conditions:
+                          - condition: template
+                            value_template: '{{ trigger.event.data.button == ''power'' }}'
+                        sequence:
+                          - action: media_player.toggle
+                            metadata: {}
+                            target:
+                              entity_id: media_player.yourmediaplayer
+                            data: {}
+                        alias: Power
+                      - conditions:
+                          - condition: template
+                            value_template: '{{ trigger.event.data.button == ''volume_up'' }}'
+                        sequence:
+                          - action: media_player.volume_up
+                            metadata: {}
+                            target:
+                              entity_id: media_player.yourmediaplayer
+                            data: {}
+                        alias: Volume Up
+                      - conditions:
+                          - condition: template
+                            value_template: '{{ trigger.event.data.button == ''volume_down'' }}'
+                        sequence:
+                          - action: media_player.volume_down
+                            metadata: {}
+                            target:
+                              entity_id: media_player.yourmediaplayer
+                            data: {}
+                        alias: Volume Down
+                      - conditions:
+                          - condition: template
+                            value_template: '{{ trigger.event.data.button == ''volume_mute'' }}'
+                        sequence:
+                          - action: media_player.volume_mute
+                            metadata: {}
+                            target:
+                              entity_id: media_player.yourmediaplayer
+                            data:
+                              is_volume_muted: false
+                        alias: Mute
+              - conditions:
+                  - condition: state
+                    entity_id: input_select.everything_remote_neo_context
+                    state: Blue
+                sequence:
+                  - choose:
+                      - conditions:
+                          - condition: template
+                            value_template: '{{ trigger.event.data.button == ''power'' }}'
+                        sequence:
+                          - action: media_player.toggle
+                            metadata: {}
+                            target:
+                              entity_id: media_player.your_other_mediaplayer
+                            data: {}
+                        alias: Power
+                      - conditions:
+                          - condition: template
+                            value_template: '{{ trigger.event.data.button == ''volume_up'' }}'
+                        sequence:
+                          - action: media_player.volume_up
+                            metadata: {}
+                            target:
+                              entity_id: media_player.your_other_mediaplayer
+                            data: {}
+                        alias: Volume Up
+                      - conditions:
+                          - condition: template
+                            value_template: '{{ trigger.event.data.button == ''volume_down'' }}'
+                        sequence:
+                          - action: media_player.volume_down
+                            metadata: {}
+                            target:
+                              entity_id: media_player.your_other_mediaplayer
+                            data: {}
+                        alias: Volume Down
+                      - conditions:
+                          - condition: template
+                            value_template: '{{ trigger.event.data.button == ''volume_mute'' }}'
+                        sequence:
+                          - action: media_player.volume_mute
+                            metadata: {}
+                            target:
+                              entity_id: media_player.your_other_mediaplayer
+                            data:
+                              is_volume_muted: false
+                        alias: Mute
+                  - conditions:
+                    - condition: state
+                      entity_id: input_select.everything_remote_neo_context
+                      state:
+                        - White
+                        - Green
+                        - Orange
+                    sequence:
+                      - choose:
+                          - conditions:
+                              - condition: template
+                                value_template: '{{ trigger.event.data.button == ''power'' }}'
+                            sequence:
+                              - action: light.toggle
+                                target:
+                                  entity_id: >-
+                                    {{
+                                    light[states('input_select.everything_remote_neo_context')]
+                                    }}
+                            alias: Power light
+                          - conditions:
+                              - condition: template
+                                value_template: '{{ trigger.event.data.button == ''dpad_up'' }}'
+                            sequence:
+                              - action: light.increase_brightness
+                                target:
+                                  entity_id: >-
+                                    {{
+                                    light[states('input_select.everything_remote_neo_context')]
+                                    }}
+                                data:
+                                  step_pct: 1
+                            alias: Brightness +1
+                          - conditions:
+                              - condition: template
+                                value_template: '{{ trigger.event.data.button == ''dpad_right'' }}'
+                            sequence:
+                              - action: light.increase_brightness
+                                target:
+                                  entity_id: >-
+                                    {{
+                                    light[states('input_select.everything_remote_neo_context')]
+                                    }}
+                                data:
+                                  step_pct: 5
+                            alias: Brightness +5
+                          - conditions:
+                              - condition: template
+                                value_template: '{{ trigger.event.data.button == ''dpad_down'' }}'
+                            sequence:
+                              - action: light.decrease_brightness
+                                target:
+                                  entity_id: >-
+                                    {{
+                                    light[states('input_select.everything_remote_neo_context')]
+                                    }}
+                                data:
+                                  step_pct: 1
+                            alias: Brightness -1
+                          - conditions:
+                              - condition: template
+                                value_template: '{{ trigger.event.data.button == ''dpad_left'' }}'
+                            sequence:
+                              - action: light.decrease_brightness
+                                target:
+                                  entity_id: >-
+                                    {{
+                                    light[states('input_select.everything_remote_neo_context')]
+                                    }}
+                                data:
+                                  step_pct: 5
+                            alias: Brightness -5
+        alias: Short normal
+      - conditions:
+          - condition: trigger
+            id: long
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.button == ''power'' }}'
+                sequence:
+                  - action: input_select.select_next
+                    target:
+                      entity_id: input_select.everything_remote_neo_context
+                    data:
+                      cycle: true
+                alias: Select context
+              - conditions:
+                  - condition: state
+                    entity_id: input_select.everything_remote_neo_context
+                    state: Blue
+                sequence:
+                  - choose:
+                      - conditions:
+                          - condition: template
+                            value_template: '{{ trigger.event.data.button == ''volume_up'' }}'
+                        sequence:
+                            - action: media_player.volume_set
+                              target:
+                                entity_id: media_player.your_other_mediaplayer
+                              data:
+                                volume_level: 1.0
+                        alias: Set volume max
+        alias: Long normal
+mode: parallel
+max: 10

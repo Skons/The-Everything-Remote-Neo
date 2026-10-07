@@ -1,0 +1,48 @@
+{
+  "format": "pcb-etcher-settings",
+  "version": 1,
+  "values": {
+    "widthCm": "3.6757",
+    "heightCm": "12.4879",
+    "thick": "1",
+    "segments": "24",
+    "edgeColor": "#89071a",
+    "etcherThick": "1",
+    "etcherTolerance": "0.1",
+    "etcherCell": "3",
+    "etcherWall": "0.7"
+  },
+  "checks": {
+    "extrudeOnTop": false,
+    "mirrorToggle": true
+  },
+  "modelMode": "pcb",
+  "infillType": "honeycomb",
+  "holeProfiles": [
+    {
+      "color": "#000000",
+      "diameter": "1"
+    },
+    {
+      "color": "#0001fd",
+      "diameter": "1.5"
+    },
+    {
+      "color": "#00ff1f",
+      "diameter": "2"
+    }
+  ],
+  "traceProfiles": [
+    {
+      "color": "#ffd500",
+      "lineDepth": "0.5",
+      "lineWidth": "0.5",
+      "circleDepth": "0.5",
+      "padWidth": "2",
+      "padHeight": "1.5",
+      "ridgeWidth": "0",
+      "ridgeHeight": "0"
+    }
+  ],
+  "expandedTraceColorIndex": 0
+}
