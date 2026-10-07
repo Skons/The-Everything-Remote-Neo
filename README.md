@@ -57,9 +57,11 @@ Then add the following items instead of the original PCB:
 
 ## Printing
 
+**Print your own PCB!**
+
 **An AMS or equivalent multi-material setup is required.**
 
-Print all included plates. Pay extra attention to the printed PCB parts. If you have watched The Stock Pot video, you will notice that the original buttons use a different approach. For this build, I used the simpler route for the icons; if you want to reassign buttons, edit the icons as needed. The design uses the Windows font Segoe Fluent Icons.
+[Print all included plates](https://makerworld.com/en/models/3408451-the-everything-remote-neo#profileId-3881921). Pay extra attention to the printed PCB parts. If you have watched The Stock Pot video, you will notice that the original buttons use a different approach. For this build, I used the simpler route for the icons; if you want to reassign buttons, edit the icons as needed. The design uses the Windows font Segoe Fluent Icons.
 
 For the holes to print correctly, you may need to set Bambu Studio’s [X-Y Hole Compensation](https://wiki.bambulab.com/en/software/bambu-studio/xy-hole-contour-compensation) to `0.15`. Apply this setting to both the bottom and top PCB.
 
