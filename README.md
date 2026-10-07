@@ -1,40 +1,40 @@
 # The Everything Remote - Neo
 
-The Everything Remote Neo is an improved version of [The Everything Remote](https://github.com/TheStockPot/The-Everything-Remote) by The Stock Pot.
+The Everything Remote - Neo is an improved version of [The Everything Remote](https://github.com/TheStockPot/The-Everything-Remote) by The Stock Pot.
 
-The original remote uses 21 of the available 23 GPIO pins, leaving very little room for additional features. The Neo uses a matrix keypad instead. Three GPIO pins are used for the rows and seven for the columns, requiring only ten GPIO pins in total.
+The original remote uses 21 of the 23 available ESP32 GPIO pins, leaving little room for new features. The Neo replaces the keypad wiring with a matrix layout: three GPIO pins for the rows and seven for the columns, for a total of ten pins.
 
-This leaves room for additional features, including an RGB status LED. The LED provides feedback about the remote’s current state and shows which device context is active—for example, red for the TV, blue for the lights, and white for central heating.
+This frees up space for additional hardware, including a status LED and a more flexible printed PCB. The RGB LED can communicate the current state of the remote and the active device context, such as red for the TV, blue for the lights, and white for heating.
 
 ## Features
 
-The Neo includes all the features of the original remote, plus:
+The Neo keeps the capabilities of the original remote and adds:
 
 - RGB status LED
-  - Deep-sleep status
-  - Button-press feedback
+  - deep-sleep status
+  - button-press feedback
   - Home Assistant connection status
-  - Active device-context indication
-- Adjustable LED brightness
-  - Minimum brightness for wake-up feedback
-  - Maximum brightness for blinking
-- Faster wake-up from deep sleep
-- Configurable deep-sleep timer
-- Lower cost, because the PCB can be 3D-printed
-- All buttons connected to column 1 can wake the remote from deep sleep
-- Improved casing design
-  - The casing is adapted for the more flexible printed PCB
-  - The top no longer clicks into place, making maintenance and experimentation easier
-  - Battery protection prevents the battery from being punctured
-  - Additional space for battery wires
-  - A transparent The Stock Pot logo improves LED visibility
-- Experimental design in which all buttons can wake the remote from deep sleep  This has not been tested yet.
+  - active device-context indication
+- adjustable LED brightness
+  - minimum brightness for wake-up feedback
+  - maximum brightness for blinking
+- faster wake-up from deep sleep
+- configurable deep-sleep timer
+- lower production cost thanks to a 3D-printed PCB
+- all buttons connected to column 1 can wake the remote from deep sleep
+- improved casing design
+  - adapted to the more flexible printed PCB
+  - simpler to open for maintenance and experimentation
+  - battery protection prevents puncturing the battery
+  - additional space for battery wires
+  - transparent Stock Pot logo for better LED visibility
+- experimental support for waking the remote using all buttons (not yet fully validated)
 
 ## How the context system works
 
-A context represents the device or room currently controlled by the remote. The selected context is shown using the RGB LED.
+A context represents the device or room currently controlled by the remote. The active context is shown by the RGB LED.
 
-For example:
+Examples:
 
 - Red: TV
 - Blue: lights
@@ -42,38 +42,38 @@ For example:
 - White: central heating
 - Orange: another device or room
 
-The context is managed through Home Assistant using an `input_select`. This makes it possible to switch between devices without needing a separate remote for each one.
+The context is managed through Home Assistant using an `input_select` entity. This allows you to switch between devices without needing a separate remote for each one.
 
 ## Materials
 
-First, follow the original [Bill of Materials](https://github.com/TheStockPot/The-Everything-Remote) from The Stock Pot.
+Start with the original [Bill of Materials](https://github.com/TheStockPot/The-Everything-Remote) from The Stock Pot.
 
-Skip the original PCB and add the following items:
+Then add the following items instead of the original PCB:
 
 - [0.5 mm copper wire](https://nl.aliexpress.com/item/1005009078359338.html)
 - [RGB LED](https://nl.aliexpress.com/item/4000225253691.html)
-- Three 200 Ω resistors
-- 24–28 AWG wire, four wires shorter than 10 cm each
+- three 200 Ω resistors
+- 24–28 AWG wire, with four wires shorter than 10 cm
 
 ## Printing
 
 **An AMS or equivalent multi-material setup is required.**
 
-Print all plates included in the project. Pay special attention to the printed PCBs. If you have watched The Stock Pot video, then you'll see that his buttons are done different. For now I went the easy way for the icons. Edit the icons if you want to reassign the buttons. I have used the Windows font Segoe Fluent Icons.
+Print all included plates. Pay extra attention to the printed PCB parts. If you have watched The Stock Pot video, you will notice that the original buttons use a different approach. For this build, I used the simpler route for the icons; if you want to reassign buttons, edit the icons as needed. The design uses the Windows font Segoe Fluent Icons.
 
-For the holes to print correctly, you may need to set Bambu Studio’s [X-Y Hole Compensation](https://wiki.bambulab.com/en/software/bambu-studio/xy-hole-contour-compensation) to `0.15`. Do this for the Bottom and Top PCB.
+For the holes to print correctly, you may need to set Bambu Studio’s [X-Y Hole Compensation](https://wiki.bambulab.com/en/software/bambu-studio/xy-hole-contour-compensation) to `0.15`. Apply this setting to both the bottom and top PCB.
 
-The original Neo was printed using PETG because transparent PETG was available for the top parts and black PETG for the remaining parts. Transparent PLA should also work.
+The original Neo was printed in PETG because transparent PETG was available for the top parts and black PETG for the remaining parts. Transparent PLA should also work.
 
 ## Building the remote
 
-Before starting, watch The Stock Pot’s YouTube build guide for the original remote. The general assembly process is the same, but the Neo uses a printed PCB, a matrix keypad and an RGB LED.
+Before you start, watch The Stock Pot build guide for the original remote. The general assembly process is the same, but the Neo adds a printed PCB, a matrix keypad, and an RGB LED.
 
 ### Build order
 
 1. Add the copper wires to the printed traces.
 2. Solder the copper wires together where required.
-3. Install all the push buttons.
+3. Install all push buttons.
 4. Solder the push buttons to the traces.
 5. Install the RGB LED.
 6. Install the three resistors.
@@ -82,14 +82,14 @@ Before starting, watch The Stock Pot’s YouTube build guide for the original re
 9. Solder the trace wires to the ESP32 GPIO pins.
 10. Connect the LED wires to the resistors.
 11. Solder the LED wires to the ESP32 GPIO pins.
-12. Test the remote using the ESPHome configuration.
+12. Test the remote with the ESPHome configuration.
 13. Install the assembled PCB into the casing.
 
-Refer to the [PCBEtcher SVG](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.svg) file for the complete row, column, LED and ESP32 GPIO assignments. Keep in mind that you look at it from the bottom perspective.
+Refer to the [PCBEtcher SVG](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.svg) for the complete row, column, LED, and ESP32 GPIO assignments. Keep in mind that the drawing is viewed from the bottom side.
 
 ## Adding the copper traces
 
-After printing, start by adding the copper wire to the traces. First, [install two or three push buttons](#installing-and-soldering-the-push-buttons) without soldering into the PCB so that the two plates stay aligned while you work on them. Start at the point where the wires will later be connected to the ESP32 on the top PCB. Unwind the copper wire from that point and follow the trace to the first hole. Push the wire through the hole, then press it into the trace from the beginning of the route. This method provides enough wire to fill the complete trace while minimizing excess wire that needs to be cut off.
+After printing, start by adding the copper wire to the traces. First, [install two or three push buttons](#installing-and-soldering-the-push-buttons) without soldering them into the PCB so the two plates stay aligned while you work. Start at the point where the wires will later be connected to the ESP32 on the top PCB. Unwind the copper wire from that point and follow the trace to the first hole. Push the wire through the hole and then press it into the trace from the start of the route. This method gives you enough wire to complete the full trace while minimizing excess material to cut off later.
 
 Some traces consist of several connected sections. After completing the main trace, locate the additional sections and add wire to them. Solder these sections to the main trace where necessary.
 
@@ -107,24 +107,24 @@ Some traces turn sharply around corners. When a trace connects to a push-button 
 
 Push all buttons into the top PCB. The button legs can become caught between the two PCB plates. If necessary, straighten the legs with pliers before inserting the buttons. Once the buttons are in place, bend the legs slightly toward the PCB. This helps hold each button in position.
 
-Make sure every button is fully seated and straight. A tilted button can cause alignment problems with the buttons when the remote is assembled.
+Make sure every button is fully seated and straight. A tilted button can cause alignment problems later when the remote is assembled.
 
 Solder each button to the copper traces.
 
 ### Test the traces
 
-Test all traces with a multimeter before installing the ESP32. If a connection is missed, it may be difficult to access it after the ESP32 has been installed. For each button:
+Test all traces with a multimeter before installing the ESP32. If a connection is missed, it may be difficult to access it afterward. For each button:
 
 1. Place one multimeter probe on the button leg.
 2. Place the other probe on the corresponding row or column connection on the ESP32 side.
 3. Confirm that the connection is continuous.
 4. Repeat this for every leg on every button.
 
-It can be useful to draw a table showing the rows and columns and mark each connection as it is tested. Use the [PCBEtcher SVG](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.svg) file to determine which row and column belong to each button.
+It can be useful to draw a table with the rows and columns and mark each connection as you test it. Use the [PCBEtcher SVG](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.svg) to determine which row and column belong to each button.
 
 ## Installing the RGB LED and resistors
 
-Insert the RGB LED through the PCB. Before soldering, identify the ground connection and the red, green and blue LED leads. The exact pin order depends on the LED type. Cut off the excess LED leads on the underside of the PCB. Insert the three 200 Ω resistors into their designated holes. Solder the resistor legs to the corresponding LED leads on the top side of the PCB, not the underside.
+Insert the RGB LED through the PCB. Before soldering, identify the ground connection and the red, green, and blue LED leads. The exact pin order depends on the LED type. Cut off the excess LED leads on the underside of the PCB. Insert the three 200 Ω resistors into their designated holes. Solder the resistor legs to the corresponding LED leads on the top side of the PCB, not the underside.
 
 Refer to the [PCBEtcher SVG](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.svg) for the LED wiring and GPIO assignment.
 
@@ -132,25 +132,25 @@ Refer to the [PCBEtcher SVG](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.svg
 
 Insert the ESP32 through the bottom PCB. Make sure:
 
-- The GPIO pins point in the correct direction.
-- The USB connector aligns with the opening in the bottom casing.
-- The ESP32 is seated properly before soldering.
+- the GPIO pins point in the correct direction
+- the USB connector aligns with the opening in the bottom casing
+- the ESP32 is seated correctly before soldering
 
 Solder the copper traces to the assigned ESP32 GPIO pins. Make sure the wires are long enough to reach their connections without being stretched.
 
-Connect the LED wires to the resistors and to the assigned GPIO pins. Route the wires between the buttons, not over them, so that they do not interfere with button operation.
+Connect the LED wires to the resistors and to the assigned GPIO pins. Route the wires between the buttons rather than over them so they do not interfere with button operation.
 
 ## Testing
 
-After completing the soldering:
+After soldering is complete:
 
 1. Check all connections for continuity.
 2. Check that no adjacent traces are shorted.
 3. Confirm that the LED wiring is correct.
-4. Flash the [ESPHome](#ESPHome) configuration.
+4. Flash the [ESPHome](#esphome) configuration.
 5. Test every button.
 6. Test wake-up from deep sleep.
-7. Test the LED status and context colours.
+7. Test the LED status and context colors.
 8. Confirm that the remote connects to Home Assistant.
 
 ## Finishing the assembly
@@ -163,12 +163,12 @@ Install the buttons and the top casing afterward. The Neo casing does not click 
 
 Add [`everything-remote-neo.yaml`](everything-remote-neo.yaml) to ESPHome and configure it for your device.
 
-Check the following before flashing:
+Before flashing, verify the following:
 
-- The GPIO assignments match the printed PCB and SVG.
-- The LED pins are configured correctly.
-- The deep-sleep timer is suitable for your use.
-- The Home Assistant API and Wi-Fi settings are correct.
+- the GPIO assignments match the printed PCB and SVG
+- the LED pins are configured correctly
+- the deep-sleep timer is suitable for your use case
+- the Home Assistant API and Wi-Fi settings are correct
 
 Flash the ESP32 as usual and verify that the remote wakes up and responds to button presses.
 
@@ -187,75 +187,100 @@ input_select:
       - Green
       - White
       - Orange
-    initial: Red
 ```
 
 If an `input_select:` section already exists in your configuration, add only the `everything_remote_neo_context` item below it.
 
-After adding the helper, copy the contents of [`automations.yaml`](automations.yaml) into an automation. You can either add the automation directly to `automations.yaml`, or create a new automation through the Home Assistant interface and select **Edit in YAML**.
+### Switch by long-press power
 
-The example automation is designed to make switching between contexts easy. Pay special attention to:
+To switch context, use the automation below. Hold the power button until the color changes. This is useful when you want to switch between a small number of profiles, such as two or three colors.
 
-- The `setcontext` trigger
-- The `setcontext` action
-- The **Select context** option in the long-press action
+Copy the contents of [`automations.yaml`](automations.yaml) into an automation. You can either add the automation directly to `automations.yaml`, or create a new automation through the Home Assistant UI and select **Edit in YAML**.
 
-The colours in the automation variables must match the options in `everything_remote_neo_context`. If you want to use different colours, update both the variables and the `input_select` options.
+The example automation is designed to make context switching easy. Pay attention to:
 
-## Images
+- the `setcontext` trigger
+- the `setcontext` action
+- the **Select context** option in the long-press action
+
+The colors in the automation variables must match the options in `everything_remote_neo_context`. If you want to use different colors, update both the variables and the `input_select` options.
+
+### Switch by button assignment
+
+You can also switch context using the automation below. Long-press the power button to enable context switching; the light will blink rapidly. After that, an assigned button sets the selected color. When you are done, briefly press the power button to confirm the choice.
+
+Before this automation can be used, add the following `input_boolean` to Home Assistant:
+
+```yaml
+input_boolean:
+  everything_remote_neo_context:
+    name: Everything Remote Neo Context
+    icon: mdi:remote-tv
+```
+
+If an `input_boolean:` section already exists in your configuration, add only the `everything_remote_neo_context` item below it.
+
+Copy the contents of [`automations_blink.yaml`](automations_blink.yaml) into an automation. You can either add the automation directly to `automations.yaml`, or create a new automation through the Home Assistant UI and select **Edit in YAML**.
+
+The example automation is designed to make context switching easy. Pay attention to:
+
+- the `setcontext` trigger
+- the `setcontext` action
+- the **Select context** option in the long-press action
+
+The colors in the automation variables must match the options in `everything_remote_neo_context`. If you want to use different colors, update both the variables and the `input_select` options.
+
+## Gallery
+
 [<img src="images/The Everything Remote - Neo.jpeg" alt="The Everything Remote Neo PCB top" width="500">](images/The%20Everything%20Remote%20-%20Neo.jpeg)
 [<img src="images/The Everything Remote - Neo PCB Top.jpeg" alt="The Everything Remote Neo" width="500">](images/The%20Everything%20Remote%20-%20Neo%20PCB%20Top.jpeg)
 [<img src="images/The Everything Remote - Neo PCB Top Full.jpeg" alt="The Everything Remote Neo PCB top, full view" width="500">](images/The%20Everything%20Remote%20-%20Neo%20PCB%20Top%20Full.jpeg)
 [<img src="images/The Everything Remote - Neo PCB Bottom.jpeg" alt="The Everything Remote Neo PCB bottom" width="500">](images/The%20Everything%20Remote%20-%20Neo%20PCB%20Bottom.jpeg)
 
-[<img src="The Everything Remote - Neo PCBEtcher.svg" alt="The Everything Remote Neo SVG PCBetcher layout">](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.svg)
+[<img src="The Everything Remote - Neo PCBEtcher.svg" alt="The Everything Remote Neo PCBEtcher layout">](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.svg)
 
 [<img src="images/The Everything Remote - Neo.svg" alt="The Everything Remote Neo button layout">](images/The%20Everything%20Remote%20-%20Neo.svg)
 
-## PCBEtcher
+## PCBEtcher workflow
 
-[PCBEtcher](https://skons.github.io/PCBEtcher/) is tool that allows to create a PCB with a 3D printer. Load the [PCBEtcher](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.svg) into that tool after edits have been made. Load the [PCBEtcher config](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.json) file through open settings. After this you can just click `Download PCB STL`. Keep in mind that you should select `mirror` when the `Top` PCB is downloaded.
+[PCBEtcher](https://skons.github.io/PCBEtcher/) is a tool that allows you to create a PCB with a 3D printer. Load the [PCBEtcher SVG](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.svg) into the tool after making edits. Then open the settings menu and load the [PCBEtcher config](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.json) file.
 
-## PCBEtcher
-
-If you make changes to the PCB design, load the updated [PCBEtcher SVG file](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.svg) into PCBEtcher. Next, open the settings menu and load the [PCBEtcher configuration file](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.json).
-
-After loading the settings, you do not need to load the settings again:
+After loading the settings, you usually do not need to reload them again:
 
 1. Make any required changes to the PCB design.
-2. Open your PCBEtcher file of The Everything Remote - Neo.
+2. Open your PCBEtcher file for The Everything Remote - Neo.
 3. Click **Download PCB STL**.
 4. Select the `mirror` option when downloading the `Top` PCB.
 
-The top PCB must be mirrored so that the printed traces and components are oriented correctly during assembly.
+The top PCB must be mirrored so the printed traces and components are oriented correctly during assembly.
 
 ## Experimental features
 
 ### Wake-up using all buttons
 
-The `PCBEtcher` file contains additional layers for experimental wake-up traces:
+The PCBEtcher file contains additional layers for experimental wake-up traces.
 
-[Open the PCBEtcher file](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.svg) in your favorite SVG editor. This PCBEtcher file has been created with Inkscape.
+[Open the PCBEtcher file](The%20Everything%20Remote%20-%20Neo%20PCBEtcher.svg) in your favorite SVG editor. This file was created with Inkscape.
 
-These traces have not been printed or tested yet. The idea is to connect the column lines to a dedicated wake-up GPIO through diodes. To use GPIO36 as the wake-up input, add one diode to each wake-up trace. The diodes must be oriented with the cathode—the side marked with a stripe—towards GPIO36.
+These traces have not been printed or tested yet. The idea is to connect the column lines to a dedicated wake-up GPIO through diodes. To use GPIO36 as the wake-up input, add one diode to each wake-up trace. The diodes must be oriented with the cathode, the side marked with a stripe, toward GPIO36.
 
 Another possible design is to connect a diode directly to each column GPIO and combine the diode outputs on GPIO36. This feature is experimental and has not been validated. Check the diode orientation and the ESP32 wake-up requirements before connecting the battery or flashing the ESPHome configuration.
 
 ### Battery voltage measurement
 
-GPIO35 can be used as an ADC input to measure the battery voltage. However, not every ESP32 Wemos Lolin Lite board has this input wired in the same way. Verify the board schematic before relying on this feature.
+GPIO35 can be used as an ADC input to measure the battery voltage. However, not every ESP32 Wemos Lolin Lite board wires this input the same way. Verify the board schematic before relying on this feature.
 
-A voltage divider can be added using two 100 kΩ resistors, in this case you will not have to rely on the schematic of your board:
+A voltage divider can be added using two 100 kΩ resistors; in that case, you do not need to rely on the board schematic:
 
 ```text
-3.3v ── 100 kΩ ──┬── VP / GPIO35
+3.3V ── 100 kΩ ──┬── VP / GPIO35
                  │
                100 kΩ
                  │
                 GND
 ```
 
-Add this to you ESPHome config in case you have used your own voltage divider.
+Add this to your ESPHome config if you have used your own voltage divider.
 
 ```yaml
 sensor:
@@ -270,6 +295,7 @@ sensor:
       - median:
           window_size: 5
           send_every: 5
+
           send_first_at: 1
  
   - platform: template

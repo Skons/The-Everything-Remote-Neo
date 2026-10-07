@@ -14,6 +14,11 @@ triggers:
   - trigger: state
     entity_id: input_select.everything_remote_neo_context
     id: setcontext
+  - trigger: state
+    entity_id: input_boolean.everything_remote_neo_context
+    id: setcontext2
+    to:
+      - 'on'
 actions:
   - variables:
       colors:
@@ -54,7 +59,31 @@ actions:
             alias: Show new context
       - conditions:
           - condition: trigger
+            id: setcontext2
+        sequence:
+          - repeat:
+              while:
+                - condition: state
+                  entity_id: input_boolean.everything_remote_neo_context
+                  state: 'on'
+              sequence:
+                - target:
+                    entity_id: light.everything_remote_neo_rgb_led
+                  action: light.toggle
+                  data:
+                    brightness_pct: 85
+                - delay:
+                    hours: 0
+                    minutes: 0
+                    seconds: 0
+                    milliseconds: 250
+      - conditions:
+          - condition: trigger
             id: single
+          - condition: state
+            entity_id: input_boolean.everything_remote_neo_context
+            state:
+              - 'off'
         sequence:
           - choose:
               - conditions:
@@ -227,17 +256,21 @@ actions:
       - conditions:
           - condition: trigger
             id: long
+          - condition: state
+            entity_id: input_boolean.everything_remote_neo_context
+            state:
+              - 'off'
         sequence:
           - choose:
               - conditions:
                   - condition: template
                     value_template: '{{ trigger.event.data.button == ''power'' }}'
                 sequence:
-                  - action: input_select.select_next
+                  - action: input_boolean.turn_on
+                    metadata: {}
                     target:
-                      entity_id: input_select.everything_remote_neo_context
-                    data:
-                      cycle: true
+                      entity_id: input_boolean.everything_remote_neo_context
+                    data: {}
                 alias: Select context
               - conditions:
                   - condition: state
@@ -256,5 +289,47 @@ actions:
                                 volume_level: 1.0
                         alias: Set volume max
         alias: Long normal
+      - conditions:
+          - condition: trigger
+            id: single
+          - condition: state
+            entity_id: input_boolean.everything_remote_neo_context
+            state:
+              - 'on'
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.button == ''power'' }}'
+                sequence:
+                  - action: input_boolean.turn_off
+                    metadata: {}
+                    target:
+                      entity_id: input_boolean.everything_remote_neo_context
+                    data: {}
+                alias: 'Off'
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.button == ''back'' }}'
+                sequence:
+                  - action: input_select.select_option
+                    metadata: {}
+                    target:
+                      entity_id: input_select.everything_remote_neo_context
+                    data:
+                      option: Red
+                alias: Red
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.button == ''home'' }}'
+                sequence:
+                  - action: input_select.select_option
+                    metadata: {}
+                    target:
+                      entity_id: input_select.everything_remote_neo_context
+                    data:
+                      option: Blue
+                alias: Blue
+        alias: Single set context
 mode: parallel
 max: 10
