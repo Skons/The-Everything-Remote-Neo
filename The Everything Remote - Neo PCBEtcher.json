@@ -36,12 +36,13 @@
     {
       "color": "#ffd500",
       "lineDepth": "0.5",
-      "lineWidth": "0.5",
+      "lineWidth": "0.7",
       "circleDepth": "0.5",
       "padWidth": "2",
       "padHeight": "1.5",
-      "ridgeWidth": "0",
-      "ridgeHeight": "0"
+      "ridgeWidth": "0.7",
+      "ridgeHeight": "0.5",
+      "overhang": "0.1"
     }
   ],
   "expandedTraceColorIndex": 0
