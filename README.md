@@ -163,7 +163,7 @@ Install the buttons and the top casing afterward. The Neo casing does not click 
 
 ## ESPHome
 
-Add [`everything-remote-neo.yaml`](everything-remote-neo.yaml) to ESPHome and configure it for your device.
+Add [`everything-remote-neo.yaml`](everything-remote-neo.yaml) to ESPHome and configure it for your device. Use the [`everything-remote-neo-battery.yaml`](everything-remote-neo-battery.yaml) if you have a voltage divider or a board where GPIO35 shows the battery level. Keep in mind that the battery yaml contains the double press for all buttons. If you want support for that, but you do not have a voltage divider, you will have to mix and match.
 
 Before flashing, verify the following:
 
@@ -173,6 +173,10 @@ Before flashing, verify the following:
 - the Home Assistant API and Wi-Fi settings are correct
 
 Flash the ESP32 as usual and verify that the remote wakes up and responds to button presses.
+
+### everything-remote-neo-battery.yaml
+
+This yaml contains support for double press with a battery. The power button is "hijacked" so the double press can be used to get the battery level through the led. Keep in mind that you cannot use the double press in Home Assistant.
 
 ## Home Assistant
 
@@ -232,6 +236,19 @@ The example automation is designed to make context switching easy. Pay attention
 
 The colors in the automation variables must match the options in `everything_remote_neo_context`. If you want to use different colors, update both the variables and the `input_select` options.
 
+### Switch by double press
+
+You will have to have used the [`everything-remote-neo-battery.yaml`](everything-remote-neo-battery.yaml). These will contain the double press.
+
+Copy the contents of [`everything-remote-neo-battery.yaml`](everything-remote-neo-battery.yaml) into an automation. You can either add the automation directly to `automations.yaml`, or create a new automation through the Home Assistant UI and select **Edit in YAML**.
+
+The example automation is designed to make context switching the easiest. If you'll double press the following buttons, you'll get the corresponding colors:
+
+- `back` is red
+- `home` is blue
+
+The colors in the automation variables must match the options in `everything_remote_neo_context`. If you want to use different colors, update both the variables and the `input_select` options.
+
 ## Gallery
 
 [<img src="images/The Everything Remote - Neo.jpeg" alt="The Everything Remote Neo PCB top" width="500">](images/The%20Everything%20Remote%20-%20Neo.jpeg)
@@ -270,34 +287,34 @@ Another possible design is to connect a diode directly to each column GPIO and c
 
 ### Battery voltage measurement
 
-GPIO35 can be used as an ADC input to measure the battery voltage. However, not every ESP32 Wemos Lolin Lite board wires this input the same way. Verify the board schematic before relying on this feature.
+The default GPIO35 can be used as an ADC input to measure the battery voltage. However, not every ESP32 Wemos Lolin Lite board wires that GPIO the same way. Verify the board schematic before relying on this feature.
 
-A voltage divider can be added using two 100 kΩ resistors; in that case, you do not need to rely on the board schematic:
+A voltage divider can be added using two 100 kΩ resistors; in that case, you do not need to rely on the board schematic but you can create your own voltage meter:
 
 ```text
-3.3V ── 100 kΩ ──┬── VP / GPIO35
-                 │
-               100 kΩ
-                 │
-                GND
+Battery + ── 100 kΩ ──┬── VP / GPIO36
+                      │
+                   100 kΩ
+                      │
+                     GND
 ```
 
-Add this to your ESPHome config if you have used your own voltage divider.
+Add this to your ESPHome config if you have used your own voltage divider. The multiply must be set differently if the value is not corresponding to your multimeter. If your multimeter measures a different voltage, use this formula to set the correct multiplier:
+`[current multiply] × [multimeter value] / [adc value] = [new multiply]`, i.e. `1.941 × 4.04 / 3.96 = 1.980`
 
 ```yaml
 sensor:
   - platform: adc
-    pin: GPIO36
+    pin: GPIO36 #GPIO35 if the onboard functions
     name: "Battery Voltage"
     id: battery_voltage
     attenuation: 11db
     update_interval: 60s
     filters:
-      - multiply: 1.941
+      - multiply: 2
       - median:
           window_size: 5
           send_every: 5
-
           send_first_at: 1
  
   - platform: template
